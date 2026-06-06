@@ -6,7 +6,7 @@ import json
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-TELEGRAM_TOKEN = os.environ.get("8811293766:AAHJir3yAp5FFoPcB9IhbTdLbMBe9-4Plho")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHANNEL_ID     = "UC4_ot3DUs7i0tCj2uwZrG6A"
 CHECK_INTERVAL = 60
 USERS_FILE     = "subscribers.json"

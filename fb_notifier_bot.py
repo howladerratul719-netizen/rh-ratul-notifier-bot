@@ -3,9 +3,8 @@ import requests
 import xml.etree.ElementTree as ET
 import asyncio
 import json
-from telegram import Bot
-from telegram.ext import Application, CommandHandler, ContextTypes
 from telegram import Update
+from telegram.ext import Application, CommandHandler, ContextTypes
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHANNEL_ID     = os.environ.get("CHANNEL_ID", "UC4_ot3DUs7i0tCj2uwZrG6A")
@@ -122,10 +121,12 @@ async def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("stop", stop))
     app.add_handler(CommandHandler("count", count))
-    await app.initialize()
-    await app.start()
-    await app.updater.start_polling(drop_pending_updates=True)
-    await poll_youtube(app)
+    async with app:
+        await app.start()
+        await asyncio.gather(
+            app.updater.start_polling(drop_pending_updates=True),
+            poll_youtube(app)
+        )
 
 if __name__ == "__main__":
     asyncio.run(main())

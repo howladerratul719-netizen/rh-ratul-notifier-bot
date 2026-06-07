@@ -83,7 +83,7 @@ def get_latest_videos():
     return videos
 
 
-async def broadcast(app, video):
+async def broadcast(bot, video):
     users = load_users()
     if not users:
         return
@@ -99,7 +99,7 @@ async def broadcast(app, video):
     success = 0
     for user_id in list(users):
         try:
-            await app.bot.send_message(
+            await bot.send_message(
                 chat_id    = user_id,
                 text       = message,
                 parse_mode = "Markdown"
@@ -114,7 +114,7 @@ async def broadcast(app, video):
     print(f"✅ Broadcast — {success} জনকে পাঠানো হয়েছে")
 
 
-async def poll_youtube(app):
+async def poll_youtube(bot):
     print("🔄 YouTube polling শুরু হয়েছে... (১ মিনিট পর পর)")
     videos = get_latest_videos()
     for v in videos:
@@ -127,7 +127,7 @@ async def poll_youtube(app):
             for video in videos:
                 if video["id"] not in seen_videos:
                     print(f"🆕 নতুন ভিডিও: {video['title']}")
-                    await broadcast(app, video)
+                    await broadcast(bot, video)
                     seen_videos.add(video["id"])
         except Exception as e:
             print(f"❌ Polling error: {e}")
@@ -138,20 +138,18 @@ async def main():
     print("  Notifier Bot চালু হয়েছে")
     print("  Developer : RH .RATUL")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    while True:
-        try:
-            app = Application.builder().token(TELEGRAM_TOKEN).build()
-            app.add_handler(CommandHandler("start", start))
-            app.add_handler(CommandHandler("stop",  stop))
-            app.add_handler(CommandHandler("count", count))
-            async with app:
-                await app.start()
-                await app.updater.start_polling(drop_pending_updates=True)
-                await poll_youtube(app)
-        except Exception as e:
-            print(f"❌ Bot crash: {e}")
-            print("🔄 ৫ সেকেন্ড পর restart...")
-            await asyncio.sleep(5)
+
+    app = Application.builder().token(TELEGRAM_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("stop",  stop))
+    app.add_handler(CommandHandler("count", count))
+
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling(drop_pending_updates=True)
+
+    print("✅ Bot polling শুরু হয়েছে")
+    await poll_youtube(app.bot)
 
 
 if __name__ == "__main__":

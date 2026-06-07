@@ -133,7 +133,7 @@ async def poll_youtube(bot):
             print(f"❌ Polling error: {e}")
 
 
-async def main():
+def main():
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print("  Notifier Bot চালু হয়েছে")
     print("  Developer : RH .RATUL")
@@ -144,13 +144,12 @@ async def main():
     app.add_handler(CommandHandler("stop",  stop))
     app.add_handler(CommandHandler("count", count))
 
-    await app.initialize()
-    await app.start()
-    await app.updater.start_polling(drop_pending_updates=True)
+    async def post_init(application):
+        asyncio.create_task(poll_youtube(application.bot))
 
-    print("✅ Bot polling শুরু হয়েছে")
-    await poll_youtube(app.bot)
+    app.post_init = post_init
+    app.run_polling(drop_pending_updates=True)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
